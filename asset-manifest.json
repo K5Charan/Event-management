@@ -1,0 +1,42 @@
+{
+  "files": {
+    "main.css": "/Event-management/static/css/main.ab3d4782.css",
+    "main.js": "/Event-management/static/js/main.180a0ed5.js",
+    "static/media/Login.jpg": "/Event-management/static/media/Login.c3a0f4de9ad1f4432fca.jpg",
+    "static/media/Home_Background.jpg": "/Event-management/static/media/Home_Background.b0db6148073e0d2d44d5.jpg",
+    "static/media/Welcome_Background.jpeg": "/Event-management/static/media/Welcome_Background.63bae4454bebf2b337f9.jpeg",
+    "static/media/Music.jpg": "/Event-management/static/media/Music.d1906972ce6ef63d0405.jpg",
+    "static/media/art.jpg": "/Event-management/static/media/art.8c7113d55923e7228eb9.jpg",
+    "static/media/Logo.jpg": "/Event-management/static/media/Logo.171f90093fd8bfa8ebf1.jpg",
+    "static/media/rock-revolt.jpg": "/Event-management/static/media/rock-revolt.57944e229747061e5c9d.jpg",
+    "static/media/passion.jpg": "/Event-management/static/media/passion.e0f65060812b603754e1.jpg",
+    "static/media/stars.jpg": "/Event-management/static/media/stars.bd05a1aed54299392fd8.jpg",
+    "static/media/metropolis.jpg": "/Event-management/static/media/metropolis.25b1fbb5ac103b52ee03.jpg",
+    "static/media/fusion.jpg": "/Event-management/static/media/fusion.45496d1a27598cf86d29.jpg",
+    "static/media/melody.jpg": "/Event-management/static/media/melody.e783eb4702326a09c05a.jpg",
+    "static/media/classic-rock.jpg": "/Event-management/static/media/classic-rock.09aa3eccba37d3ef6d17.jpg",
+    "static/media/rock.jpg": "/Event-management/static/media/rock.f48847aa33cc56abbba4.jpg",
+    "static/media/rock-icons.jpg": "/Event-management/static/media/rock-icons.4cc4e67f01aff3e0d59d.jpg",
+    "static/media/sbi.png": "/Event-management/static/media/sbi.ca6a67680443dc0f1858.png",
+    "static/media/rock-fest.jpg": "/Event-management/static/media/rock-fest.1b4c6e2b8e675de16c80.jpg",
+    "static/media/album1.jpg": "/Event-management/static/media/album1.0b2463f20108a0bd7f2b.jpg",
+    "static/media/marathon.jpg": "/Event-management/static/media/marathon.9ef7d40b7741e9524196.jpg",
+    "static/media/upi.png": "/Event-management/static/media/upi.d6e7bce32056a8460a86.png",
+    "static/media/card.png": "/Event-management/static/media/card.8917332b0a7570f8e5f8.png",
+    "static/media/album5.jpg": "/Event-management/static/media/album5.fb23f5194e517af5a7a3.jpg",
+    "static/media/album3.jpg": "/Event-management/static/media/album3.874044b3344502c8213b.jpg",
+    "static/media/album4.jpg": "/Event-management/static/media/album4.8ab0480ba55215a4c057.jpg",
+    "static/media/album2.jpg": "/Event-management/static/media/album2.c8bb8ead99dc3c5b7845.jpg",
+    "static/media/icici.png": "/Event-management/static/media/icici.e88bbf9ebef096afe89f.png",
+    "static/media/business.jpeg": "/Event-management/static/media/business.e97dbda11d2ccef3727a.jpeg",
+    "static/media/album6.jpeg": "/Event-management/static/media/album6.d7ce7a0cbccffc6e0530.jpeg",
+    "static/media/dance.jpeg": "/Event-management/static/media/dance.d9da8a95fa68a4ba787f.jpeg",
+    "index.html": "/Event-management/index.html",
+    "main.ab3d4782.css.map": "/Event-management/static/css/main.ab3d4782.css.map",
+    "main.180a0ed5.js.map": "/Event-management/static/js/main.180a0ed5.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.ab3d4782.css",
+    "static/js/main.180a0ed5.js"
+  ]
+}
