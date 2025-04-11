@@ -1,0 +1,261 @@
+.payment-success-page {
+    min-height: 100vh;
+    background-color: #f8f9fa;
+    padding: 20px;
+}
+
+.success-message {
+    background-color: #ffebee;
+    padding: 15px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 30px;
+    max-width: 1200px;
+    margin: 0 auto 30px;
+}
+
+.success-icon {
+    color: #4CAF50;
+    font-size: 20px;
+    width: 24px;
+    height: 24px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.success-message h2 {
+    color: #333;
+    margin: 0;
+    font-size: 18px;
+}
+
+.ticket-details {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.ticket-details h1 {
+    margin: 0 0 30px 0;
+    font-size: 24px;
+    color: #333;
+}
+
+.event-info-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.info-item .icon {
+    font-size: 20px;
+}
+
+.info-content h3 {
+    margin: 0 0 5px 0;
+    font-size: 12px;
+    color: #666;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.info-content p {
+    margin: 0;
+    color: #333;
+    font-size: 14px;
+}
+
+.purchase-info,
+.contact-info {
+    margin-bottom: 40px;
+}
+
+.purchase-info h3,
+.contact-info h3,
+.tickets-section h3 {
+    margin: 0 0 20px 0;
+    font-size: 18px;
+    color: #333;
+}
+
+.info-grid {
+    display: grid;
+    gap: 15px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-row span:first-child {
+    color: #666;
+    font-size: 14px;
+}
+
+.info-row span:last-child {
+    color: #333;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.payment-method {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.card-icon {
+    font-size: 16px;
+}
+
+.tickets-section {
+    margin-bottom: 30px;
+}
+
+.ticket-card {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+.ticket-icon {
+    font-size: 24px;
+}
+
+.ticket-card .ticket-details {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+    width: 100%;
+}
+
+.ticket-card .ticket-details .info-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding: 5px 0;
+    border-bottom: none;
+    width: 100%;
+}
+
+.ticket-card .ticket-details .info-row span:first-child {
+    color: #666;
+    font-size: 12px;
+}
+
+.ticket-card .ticket-details .info-row span:last-child {
+    color: #333;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: right;
+    justify-self: end;
+}
+
+.ticket-info {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    width: 100%;
+}
+
+.ticket-code {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+    min-width: fit-content;
+    margin-left: auto;
+}
+
+.code-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
+}
+
+.code-value {
+    color: #6c5ce7;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.qr-code {
+    width: 80px;
+    height: 80px;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    padding: 4px;
+}
+
+.go-to-ticket-btn {
+    background-color: #6c5ce7;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 14px 28px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    width: 100%;
+}
+
+.go-to-ticket-btn:hover {
+    background-color: #5f4dd0;
+}
+
+@media (max-width: 1024px) {
+    .event-info-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .ticket-card .ticket-details {
+        flex-wrap: wrap;
+    }
+
+    .ticket-code {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+
+@media (max-width: 480px) {
+    .ticket-card .ticket-details {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+} 

@@ -1,0 +1,281 @@
+.dashboard-page .dashboard-container {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.dashboard-page .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.dashboard-page .breadcrumb {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.dashboard-page .header-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.dashboard-page .filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: #f8f9fa;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.dashboard-page .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.dashboard-page .stat-card {
+    padding: 1.5rem;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.dashboard-page .stat-card.revenue {
+    background: #f8f0ff;
+}
+
+.dashboard-page .stat-card.tickets {
+    background: #fff0f3;
+}
+
+.dashboard-page .stat-card.views {
+    background: #e6fff9;
+}
+
+.dashboard-page .stat-card.shares {
+    background: #f0f0ff;
+}
+
+.dashboard-page .stat-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.dashboard-page .stat-amount {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.dashboard-page .stat-amount .total {
+    color: #666;
+    font-size: 1.2rem;
+}
+
+.dashboard-page .stat-label {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.dashboard-page .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.dashboard-page .section-header .left {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.dashboard-page .section-header .right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.dashboard-page .currency-icon,
+.dashboard-page .ticket-icon {
+    font-size: 1.2rem;
+}
+
+.dashboard-page .last-update {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.dashboard-page .sort-select {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: #fff;
+}
+
+.dashboard-page .sales-table,
+.dashboard-page .purchases-table {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.dashboard-page table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.dashboard-page th {
+    text-align: left;
+    padding: 1rem;
+    background: #f8f9fa;
+    color: #666;
+    font-weight: 500;
+}
+
+.dashboard-page td {
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.dashboard-page .event-cell {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.dashboard-page .event-image {
+    width: 60px;
+    height: 40px;
+    border-radius: 6px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.dashboard-page .event-image-1 {
+    background-image: url('../Images/rock-revolt.jpg');
+}
+
+.dashboard-page .event-image-2 {
+    background-image: url('../Images/rock-fest.jpg');
+}
+
+.dashboard-page .event-image-3 {
+    background-image: url('../Images/rock-icons.jpg');
+}
+
+.dashboard-page .buyer-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.dashboard-page .buyer-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-image: url('../Images/person.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.dashboard-page .status {
+    color: #666;
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+}
+
+.dashboard-page .code-cell a {
+    color: #6a5acd;
+    text-decoration: none;
+}
+
+.dashboard-page .code-cell a:hover {
+    text-decoration: underline;
+}
+
+.dashboard-page .view-all {
+    color: #6a5acd;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.dashboard-page .view-all:hover {
+    text-decoration: underline;
+}
+
+.dashboard-page .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.dashboard-page .page-numbers {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.dashboard-page .pagination button {
+    padding: 0.5rem 1rem;
+    border: none;
+    background: none;
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+.dashboard-page .pagination button.active {
+    background: #6a5acd;
+    color: white;
+}
+
+.dashboard-page .prev-btn,
+.dashboard-page .next-btn {
+    color: #666;
+    font-size: 1.2rem;
+}
+
+@media (max-width: 1024px) {
+    .dashboard-page .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-page .dashboard-container {
+        padding: 1rem;
+    }
+
+    .dashboard-page .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-page .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .dashboard-page .section-header .right {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .dashboard-page table {
+        display: block;
+        overflow-x: auto;
+    }
+} 
