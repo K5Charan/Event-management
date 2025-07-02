@@ -5,18 +5,22 @@ const { body, validationResult } = require('express-validator');
 const auth = require('../middleware/auth');
 const fs = require('fs');
 const path = require('path');
+const multer = require('multer');
+const { upload } = require('../config/cloudinary');
+
+// Configure multer for memory storage
+const uploadMulter = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+        fileSize: 5 * 1024 * 1024 // 5MB limit
+    }
+});
 
 // Get all events with filtering and pagination
 router.get('/', async (req, res) => {
   try {
-    const { category, location, search, page = 1, limit = 10 } = req.query;
-    const query = {};
-
-    if (category) query.category = category;
-    if (location) query.location = location;
-    if (search) {
-      query.$text = { $search: search };
-    }
+    
+     const { page = 1, limit = 10, ...query } = req.query;
 
     const events = await Event.find(query)
       .sort({ date: 1 })
@@ -173,36 +177,64 @@ export default ${event.id};
     fs.writeFileSync(eventDetailsPath, eventDetailsContent);
 };
 
-// Create new event
-router.post('/', async (req, res) => {
+// Create new event with image upload
+router.post('/', auth, uploadMulter.array('images', 5), async (req, res) => {
     try {
-        const { eventData } = req.body;
+        const { title, description, date, location, category, price } = req.body;
         
-        // Update events.js
-        updateEventsJs(eventData);
-        
-        // Create event details page
-        createEventDetailsPage(eventData);
-        
-        res.status(200).json({ message: 'Event created successfully' });
+        // Create new event
+        const event = new Event({
+            title,
+            description,
+            date,
+            location,
+            category,
+            price,
+            creator: req.user.id,
+            images: [] // Will be populated after Cloudinary upload
+        });
+
+        // Save event first to get the ID
+        await event.save();
+
+        // If there are images, upload them to Cloudinary
+        if (req.files && req.files.length > 0) {
+            const cloudinary = require('cloudinary').v2;
+            const uploadPromises = req.files.map(file => {
+                return new Promise((resolve, reject) => {
+                    const uploadStream = cloudinary.uploader.upload_stream(
+                        {
+                            folder: 'event_images',
+                            resource_type: 'auto'
+                        },
+                        (error, result) => {
+                            if (error) {
+                                console.error('Cloudinary upload error:', error);
+                                reject(error);
+                            } else {
+                                resolve(result.secure_url);
+                            }
+                        }
+                    );
+
+                    uploadStream.end(file.buffer);
+                });
+            });
+
+            const uploadedUrls = await Promise.all(uploadPromises);
+            event.images = uploadedUrls;
+            await event.save();
+        }
+
+        res.status(201).json(event);
     } catch (error) {
-        console.error('Error creating event:', error);
-        res.status(500).json({ error: 'Failed to create event' });
+        console.error('Create event error:', error);
+        res.status(500).json({ message: 'Error creating event', error: error.message });
     }
 });
 
-// Update event
-router.put('/:id', [
-  auth,
-  body('title').optional().trim().notEmpty(),
-  body('description').optional().trim().notEmpty(),
-  body('date').optional().isISO8601(),
-  body('time').optional().notEmpty(),
-  body('location').optional().trim().notEmpty(),
-  body('category').optional().trim().notEmpty(),
-  body('price').optional().isNumeric(),
-  body('capacity').optional().isInt({ min: 1 })
-], async (req, res) => {
+// Update event with image upload
+router.put('/:id', auth, uploadMulter.array('images', 5), async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -219,9 +251,15 @@ router.put('/:id', [
       return res.status(403).json({ message: 'Not authorized' });
     }
 
+    // Get image URLs from Cloudinary upload if new images are uploaded
+    const images = req.files ? req.files.map(file => file.path) : event.images;
+
     const updatedEvent = await Event.findByIdAndUpdate(
       req.params.id,
-      { $set: req.body },
+      { 
+        ...req.body,
+        images: images
+      },
       { new: true }
     );
 
@@ -232,7 +270,7 @@ router.put('/:id', [
   }
 });
 
-// Delete event
+// Delete event and its images
 router.delete('/:id', auth, async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);
@@ -245,8 +283,16 @@ router.delete('/:id', auth, async (req, res) => {
       return res.status(403).json({ message: 'Not authorized' });
     }
 
+    // Delete images from Cloudinary
+    if (event.images && event.images.length > 0) {
+      for (const imageUrl of event.images) {
+        const publicId = imageUrl.split('/').pop().split('.')[0];
+        await cloudinary.uploader.destroy(publicId);
+      }
+    }
+
     await event.remove();
-    res.json({ message: 'Event removed' });
+    res.json({ message: 'Event deleted successfully' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });

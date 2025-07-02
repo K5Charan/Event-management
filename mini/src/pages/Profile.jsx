@@ -96,7 +96,7 @@ const Profile = () => {
         const interests = e.target.value.split(',').map(interest => interest.trim());
         setUserData(prev => ({
             ...prev,
-            interests
+            interests: interests
         }));
     };
 
@@ -112,25 +112,50 @@ const Profile = () => {
                 return;
             }
 
-            const response = await axios.put(`${API_URL}/users/profile`, userData, {
+            // Format the data properly while preserving interests structure
+            const updateData = {
+                username: userData.username,
+                email: userData.email,
+                firstName: userData.firstName,
+                lastName: userData.lastName,
+                location: userData.location,
+                interests: typeof userData.interests === 'string' 
+                    ? userData.interests.split(',').map(i => i.trim())
+                    : Array.isArray(userData.interests) 
+                        ? userData.interests 
+                        : Object.values(userData.interests || {}).flat()
+            };
+
+            console.log('Sending update request with data:', updateData);
+
+            const response = await axios.put(`${API_URL}/users/profile`, updateData, {
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
                 }
             });
             
             if (response.data) {
-                setUserData(response.data);
+                // Preserve the interests structure when updating userData
+                setUserData(prev => ({
+                    ...response.data,
+                    interests: prev.interests // Keep the existing interests structure
+                }));
+                
                 // Update localStorage with the new user data
                 localStorage.setItem('user', JSON.stringify({
-                    name: response.data.username,
+                    name: response.data.username || `${response.data.firstName} ${response.data.lastName}`,
                     email: response.data.email,
                     profileImage: response.data.profilePicture
                 }));
                 setSuccess('Profile updated successfully!');
+                setIsEditing(false);
             }
         } catch (error) {
             console.error('Error updating profile:', error);
-            setError('Failed to update profile');
+            const errorMessage = error.response?.data?.message || error.message || 'Failed to update profile';
+            setError(`Failed to update profile: ${errorMessage}`);
+            console.log('Full error details:', error.response?.data);
         } finally {
             setLoading(false);
         }
@@ -247,7 +272,7 @@ const Profile = () => {
                                     <input
                                         type="text"
                                         name="interests"
-                                        value={userData.interests.join(', ')}
+                                        value={Array.isArray(userData.interests) ? userData.interests.join(', ') : Object.values(userData.interests || {}).flat().join(', ')}
                                         onChange={handleInterestsChange}
                                         disabled={!isEditing}
                                     />

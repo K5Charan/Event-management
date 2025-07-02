@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { eventData } from '../data/events';
+import { eventData, getAllEvents } from '../data/events';
 import './PurchaseTicket.css';
 
 // Import bank logos
@@ -16,6 +16,9 @@ import cardLogo from '../Images/payment/card.png';
 const PurchaseTicket = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
+    const [event, setEvent] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
     const [quantity, setQuantity] = useState(1);
     const [selectedTicketType, setSelectedTicketType] = useState('regular');
     const [paymentMethod, setPaymentMethod] = useState('');
@@ -34,10 +37,54 @@ const PurchaseTicket = () => {
         phone: ''
     });
 
-    const event = eventData[id];
+    useEffect(() => {
+        const loadEvent = async () => {
+            try {
+                setIsLoading(true);
+                // First check if event data was passed through navigation state
+                if (location.state?.event) {
+                    setEvent(location.state.event);
+                } else {
+                    // Then check predefined events
+                    const predefinedEvent = eventData[id];
+                    if (predefinedEvent) {
+                        setEvent(predefinedEvent);
+                    } else {
+                        // Finally, try to get from backend
+                        const allEvents = await getAllEvents();
+                        const userEvent = allEvents[id];
+                        if (userEvent) {
+                            setEvent(userEvent);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading event:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        loadEvent();
+    }, [id, location.state]);
+
+    if (isLoading) {
+        return (
+            <>
+                <Header />
+                <div className="loading">Loading event details...</div>
+                <Footer />
+            </>
+        );
+    }
 
     if (!event) {
-        return <div>Event not found</div>;
+        return (
+            <>
+                <Header />
+                <div className="error-message">Event not found</div>
+                <Footer />
+            </>
+        );
     }
 
     const ticketTypes = {

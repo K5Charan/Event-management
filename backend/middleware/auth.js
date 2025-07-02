@@ -9,9 +9,11 @@ module.exports = async (req, res, next) => {
     if (!token) {
       return res.status(401).json({ message: 'No token, authorization denied' });
     }
+    console.log("JWT_SECRET from .env:", process.env.JWT_SECRET);
 
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log("Decoded JWT:", decoded);
     
     // Get user from token
     const user = await User.findById(decoded.userId).select('-password');

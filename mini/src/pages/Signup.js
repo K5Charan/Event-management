@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Signup.css';
@@ -6,6 +6,11 @@ import API_URL from '../config/api';
 
 const Signup = () => {
   const navigate = useNavigate();
+  useEffect(() => {
+    if (localStorage.getItem('token')) {
+      navigate('/welcome', { replace: true });
+    }
+  }, [navigate]);
   const [formData, setFormData] = useState({
     username: '',
     email: '',

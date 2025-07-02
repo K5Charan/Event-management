@@ -27,11 +27,16 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  interests: [{
-    type: String
-  }],
+  interests: {
+    type: Object, 
+    default: {}
+  },
   location: {
     type: String
+  },
+  locations: {
+    type: [String],
+    default: []
   },
   profilePicture: {
     type: String

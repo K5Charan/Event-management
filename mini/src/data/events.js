@@ -21,10 +21,245 @@ import partyImg from '../Images/party.jpeg';
 import musicImg from '../Images/Music.jpg';
 import natuImg from '../Images/natu.jpeg';
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5002';
+
+// Function to format user-created events to match predefined event structure
+export const formatUserEvent = (userEvent) => {
+    return {
+        id: userEvent._id || userEvent.id,
+        title: userEvent.title,
+        date: userEvent.date,
+        description: userEvent.description,
+        location: userEvent.location,
+        startTime: userEvent.time,
+        duration: userEvent.duration || '4 hours',
+        price: parseFloat(userEvent.price),
+        maxTickets: userEvent.capacity || 4,
+        category: userEvent.category,
+        coordinates: userEvent.coordinates || { lat: 17.3850, lng: 78.4867 },
+        images: userEvent.images || [album1, album2, album3, album4, album5],
+        heroImage: userEvent.images?.[0] || album1,
+        ticketTypes: userEvent.ticketTypes || [
+            { id: 'regular', name: 'Regular Entry', price: parseFloat(userEvent.price) }
+        ],
+        status: userEvent.status || 'upcoming',
+        tags: userEvent.tags || []
+    };
+};
+
+// Function to get all events (both predefined and user-created)
+export const getAllEvents = async () => {
+    try {
+        // Get events from backend
+        const response = await fetch(`${API_URL}/api/events`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        const backendEvents = data.events || [];
+        
+        // Get events from localStorage
+        const savedEvents = JSON.parse(localStorage.getItem('events') || '[]');
+        const eventIdMap = JSON.parse(localStorage.getItem('eventIdMap') || '{}');
+        
+        // Create a map of all events
+        const allEvents = {};
+        
+        // Add predefined events
+        Object.entries(eventData).forEach(([id, event]) => {
+            allEvents[id] = event;
+        });
+        
+        // Add backend events
+        backendEvents.forEach(event => {
+            const frontendId = Object.entries(eventIdMap).find(([_, id]) => id === event._id)?.[0] || event._id;
+            allEvents[frontendId] = formatUserEvent(event);
+        });
+        
+        // Add localStorage events (if not already added from backend)
+        savedEvents.forEach(event => {
+            const frontendId = Object.entries(eventIdMap).find(([_, id]) => id === event._id)?.[0] || event._id;
+            if (!allEvents[frontendId]) {
+                allEvents[frontendId] = formatUserEvent(event);
+            }
+        });
+        
+        return allEvents;
+    } catch (error) {
+        console.error('Error fetching events:', error);
+        // Fallback to localStorage if backend is not available
+        const savedEvents = JSON.parse(localStorage.getItem('events') || '[]');
+        const eventIdMap = JSON.parse(localStorage.getItem('eventIdMap') || '{}');
+        
+        // Create a map of all events
+        const allEvents = { ...eventData };
+        
+        // Add localStorage events
+        savedEvents.forEach(event => {
+            const frontendId = Object.entries(eventIdMap).find(([_, id]) => id === event._id)?.[0] || event._id;
+            allEvents[frontendId] = formatUserEvent(event);
+        });
+        
+        return allEvents;
+    }
+};
+
+// Function to create a new event
+export const createEvent = async (eventData) => {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('Authentication required');
+        }
+
+        // Format the event data to match backend requirements
+        const formattedEvent = {
+            title: eventData.title,
+            description: eventData.description,
+            date: eventData.date,
+            time: eventData.startTime,
+            location: eventData.location,
+            category: eventData.category,
+            price: eventData.price,
+            capacity: eventData.maxTickets,
+            images: eventData.images || [],
+            tags: eventData.tags || [],
+            status: 'upcoming',
+            duration: eventData.duration || '4 hours',
+            coordinates: eventData.coordinates || { lat: 17.3850, lng: 78.4867 },
+            ticketTypes: eventData.ticketTypes || [
+                { id: 'regular', name: 'Regular Entry', price: eventData.price }
+            ]
+        };
+
+        console.log('Sending event data to backend:', formattedEvent);
+
+        const response = await fetch(`${API_URL}/api/events`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(formattedEvent)
+        });
+
+        console.log('Response status:', response.status);
+        const responseData = await response.json();
+        console.log('Response data:', responseData);
+
+        if (!response.ok) {
+            throw new Error(responseData.message || 'Failed to create event');
+        }
+
+        // Store the event in localStorage as a backup
+        const savedEvents = JSON.parse(localStorage.getItem('events') || '[]');
+        const newEvent = responseData.event;
+        savedEvents.push(newEvent);
+        localStorage.setItem('events', JSON.stringify(savedEvents));
+
+        // Store the event ID mapping
+        const eventIdMap = JSON.parse(localStorage.getItem('eventIdMap') || '{}');
+        const frontendId = `event-${Date.now()}`;
+        eventIdMap[frontendId] = newEvent._id;
+        localStorage.setItem('eventIdMap', JSON.stringify(eventIdMap));
+
+        // Return both the frontend ID and the backend event
+        return {
+            frontendId,
+            event: newEvent
+        };
+    } catch (error) {
+        console.error('Error creating event:', error);
+        throw new Error(error.message || 'Failed to create event. Please try again later.');
+    }
+};
+
+// Function to update an event
+export const updateEvent = async (eventId, eventData) => {
+    try {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/events/${eventId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(eventData)
+        });
+        const updatedEvent = await response.json();
+        return formatUserEvent(updatedEvent);
+    } catch (error) {
+        console.error('Error updating event:', error);
+        throw error;
+    }
+};
+
+// Function to delete an event
+export const deleteEvent = async (eventId) => {
+    try {
+        await fetch(`${process.env.REACT_APP_API_URL}/api/events/${eventId}`, {
+            method: 'DELETE'
+        });
+    } catch (error) {
+        console.error('Error deleting event:', error);
+        throw error;
+    }
+};
+
+// Function to send predefined events to backend
+export const sendPredefinedEvents = async () => {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('Authentication required');
+        }
+
+        // Send each predefined event to backend
+        for (const [id, event] of Object.entries(eventData)) {
+            const eventData = {
+                id: id,
+                title: event.title,
+                description: event.description,
+                date: event.date,
+                startTime: event.startTime,
+                duration: event.duration,
+                location: event.location,
+                category: event.category,
+                price: event.price,
+                totalTickets: event.maxTickets,
+                image: event.heroImage,
+                coordinates: event.coordinates,
+                ticketTypes: event.ticketTypes
+            };
+
+            console.log('Sending event:', eventData); // Debug log
+
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/events`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ eventData })
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                console.error(`Failed to create event ${id}:`, error);
+                continue;
+            }
+
+            const result = await response.json();
+            console.log(`Successfully created event: ${id}`, result);
+        }
+    } catch (error) {
+        console.error('Error sending predefined events:', error);
+        throw error;
+    }
+};
+
 export const eventData = {
     'urban-jungle-marathon': {
         title: 'Urban Jungle Marathon',
-        date: '2025-04-15',
+        date: '2024-06-15',
         description: 'Experience the thrill of running through the urban landscape of Hyderabad.',
         location: 'Hyderabad',
         startTime: '07:00 AM',
@@ -43,7 +278,7 @@ export const eventData = {
     },
     'rockin-stage': {
         title: 'Rockin\' the Stage',
-        date: '2025-04-20',
+        date: '2024-06-20',
         description: 'Get ready for an electrifying evening of rock music.',
         location: 'Hyderabad',
         startTime: '04:00 PM',
@@ -62,7 +297,7 @@ export const eventData = {
     },
     'melody-mania': {
         title: 'Melody Mania',
-        date: '2025-04-25',
+        date: '2024-06-25',
         description: 'Join us for an evening of soulful melodies and enchanting music.',
         location: 'Hyderabad',
         startTime: '07:00 PM',
@@ -80,7 +315,7 @@ export const eventData = {
     },
     'musical-fusion': {
         title: 'Musical Fusion Festival',
-        date: '2025-05-01',
+        date: '2024-07-01',
         description: 'Experience the unique blend of traditional and modern music.',
         location: 'Madhapur, Hyderabad',
         startTime: '06:00 PM',
@@ -98,7 +333,7 @@ export const eventData = {
     },
     'metropolis-marathon': {
         title: 'Metropolis Marathon',
-        date: '2025-05-07',
+        date: '2024-07-07',
         description: 'Challenge yourself in this urban marathon through Hi-Tech city.',
         location: 'Hi-Tech city, Hyderabad',
         startTime: '06:00 AM',
@@ -116,7 +351,7 @@ export const eventData = {
     },
     'rock-fest': {
         title: 'Rock Fest',
-        date: '2025-05-15',
+        date: '2024-07-15',
         description: 'A celebration of rock music with top artists.',
         location: 'Hyderabad',
         startTime: '05:00 PM',
@@ -134,7 +369,7 @@ export const eventData = {
     },
     'rock-icons': {
         title: 'Rock Icons',
-        date: '2025-05-22',
+        date: '2024-07-22',
         description: 'Witness legendary rock artists perform live.',
         location: 'Hyderabad',
         startTime: '06:00 PM',
@@ -152,7 +387,7 @@ export const eventData = {
     },
     'rock-revolt': {
         title: 'Rock Revolt',
-        date: '2025-05-10',
+        date: '2024-07-10',
         description: 'Experience the revolution of rock music.',
         location: 'Hyderabad',
         startTime: '07:00 PM',
@@ -170,7 +405,7 @@ export const eventData = {
     },
     'classic-rock': {
         title: 'Classic Rock Night',
-        date: '2025-05-05',
+        date: '2024-07-05',
         description: 'Relive the golden era of rock music.',
         location: 'Hyderabad',
         startTime: '08:00 PM',
@@ -188,7 +423,7 @@ export const eventData = {
     },
     'brushstrokes-beyond': {
         title: 'Brushstrokes & Beyond: An Oil Painting Odyssey',
-        date: '2025-04-15',
+        date: '2024-06-15',
         description: 'Immerse yourself in the world of oil painting with this unique artistic journey. Experience live demonstrations, interactive sessions, and witness the creation of masterpieces.',
         location: 'Hyderabad',
         startTime: '10:00 AM',
@@ -207,8 +442,8 @@ export const eventData = {
     },
     'business-summit': {
         id: 'business-summit',
-        title: 'Global Business Summit 2025',
-        date: '2025-05-20',
+        title: 'Global Business Summit 2024',
+        date: '2024-07-20',
         startTime: '09:00 AM',
         duration: '8 hours',
         location: 'HICC, Hyderabad',
@@ -219,7 +454,7 @@ export const eventData = {
             lat: 17.4725,
             lng: 78.3725
         },
-        description: "Join us for the Global Business Summit 2025, where industry leaders, entrepreneurs, and innovators come together to shape the future of business. This premier event features keynote speeches, panel discussions, and networking opportunities with some of the most influential figures in the global business community.",
+        description: "Join us for the Global Business Summit 2024, where industry leaders, entrepreneurs, and innovators come together to shape the future of business. This premier event features keynote speeches, panel discussions, and networking opportunities with some of the most influential figures in the global business community.",
         highlights: [
             "Keynote speeches from Fortune 500 CEOs",
             "Interactive panel discussions on emerging markets",
@@ -246,7 +481,7 @@ export const eventData = {
     'comedy-night': {
         id: 'comedy-night',
         title: 'Laugh Out Loud Comedy Night',
-        date: '2025-05-15',
+        date: '2024-07-15',
         startTime: '08:00 PM',
         duration: '2.5 hours',
         location: 'Shilpakala Vedika, Hyderabad',
@@ -289,7 +524,7 @@ export const eventData = {
     'dance-fusion': {
         id: 'dance-fusion',
         title: 'Rhythmic Fusion Dance Festival',
-        date: '2025-05-05',
+        date: '2024-07-05',
         startTime: '06:30 PM',
         duration: '3 hours',
         location: 'Ravindra Bharathi, Hyderabad',
@@ -332,7 +567,7 @@ export const eventData = {
     'passion-power': {
         id: 'passion-power',
         title: 'Passion Power: Dance & Motivation',
-        date: '2025-05-30',
+        date: '2024-07-30',
         startTime: '10:00 AM',
         duration: '6 hours',
         location: 'JRC Convention, Hyderabad',
@@ -375,7 +610,7 @@ export const eventData = {
     'neon-nights': {
         id: 'neon-nights',
         title: 'Neon Nights: Summer Beach Party',
-        date: '2025-05-25',
+        date: '2024-07-25',
         startTime: '08:00 PM',
         duration: '6 hours',
         location: 'Novotel HICC, Hyderabad',
@@ -417,7 +652,7 @@ export const eventData = {
     },
     'musical-ravage': {
         title: 'Musical Ravage',
-        date: '2025-05-20',
+        date: '2024-07-20',
         description: 'Experience an electrifying night of music with top artists from around the world.',
         location: 'Hyderabad',
         startTime: '07:00 PM',
@@ -437,7 +672,7 @@ export const eventData = {
     'natu-dance': {
         id: 'natu-dance',
         title: 'Natu Dance Festival',
-        date: '2025-06-15',
+        date: '2024-07-15',
         startTime: '06:00 PM',
         duration: '4 hours',
         location: 'Shilparamam, Hyderabad',

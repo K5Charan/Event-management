@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
+import axios from 'axios';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import './Events.css';
 import Header from '../components/Header';
@@ -8,6 +9,13 @@ import Footer from '../components/Footer';
 import artImg from '../Images/art.jpg';
 
 const Events = () => {
+    const [events, setEvents] = useState([]);
+
+    useEffect(() => {
+        axios.get('http://localhost:5002/api/events')
+            .then(res => setEvents(res.data.events))
+            .catch(err => console.error(err));
+    }, []);
     const navigate = useNavigate();
     const location = useLocation();
     const selectedLocations = location.state?.locations || ['Hyderabad'];

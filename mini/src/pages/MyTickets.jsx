@@ -213,7 +213,7 @@ const MyTickets = () => {
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
-                            <span className="search-icon"></span>
+                            <span className="search-icon">🔍</span>
                         </div>
                     </div>
 

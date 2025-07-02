@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const TicketsContext = createContext();
 const MAX_TICKETS = 50; // Limit the number of tickets stored
-const API_URL = 'http://localhost:5002/api';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5002/api';
 
 export const TicketsProvider = ({ children }) => {
     const [purchasedTickets, setPurchasedTickets] = useState(() => {
@@ -28,7 +28,7 @@ export const TicketsProvider = ({ children }) => {
                 // For each ticket in localStorage, save it to backend
                 for (const ticket of purchasedTickets) {
                     try {
-                        await axios.post('http://localhost:5001/api/tickets/purchase', {
+                        await axios.post(`${API_URL}/tickets/purchase`, {
                             eventId: ticket.id,
                             quantity: ticket.tickets.length,
                             paymentMethod: 'card', // default value since old tickets might not have this

@@ -1,13 +1,50 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './Location.css';
+import API_URL from '../config/api';
 
 const Location = () => {
   const [location, setLocation] = useState('');
   const [locations, setLocations] = useState(['Hyderabad']); // Array to store multiple locations
   const navigate = useNavigate();
 
-  const handleNext = () => {
+   const saveLocations = async (locs) => {
+    try {
+      const token = localStorage.getItem('token');
+      // Ensure locs is always an array
+      const locationsArray = Array.isArray(locs) ? locs : [locs];
+      await axios.post(
+        `${API_URL}/users/locations`,
+        { locations: locationsArray },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+    } catch (error) {
+      console.error('Error saving locations:', error);
+      // Optionally, show error UI feedback here
+    }
+  };
+
+  useEffect(() => {
+    // Fetch user's saved locations on mount (optional, for pre-selection)
+    const fetchLocations = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await axios.get(`${API_URL}/users/locations`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.data && Array.isArray(res.data.locations)) {
+          setLocations(res.data.locations);
+        }
+      } catch (error) {
+        console.error('Error fetching locations:', error);
+      }
+    };
+    fetchLocations();
+  }, []);
+
+  const handleNext = async () => {
+    await saveLocations(locations);
     navigate('/events', { state: { locations } });
   };
 
@@ -19,10 +56,12 @@ const Location = () => {
     navigate('/events', { state: { locations: ['Hyderabad'] } });
   };
 
-  const handleAddLocation = () => {
+  const handleAddLocation = async () => {
     if (location.trim() && !locations.includes(location.trim())) {
-      setLocations([...locations, location.trim()]);
-      setLocation(''); // Clear input after adding
+      const newLocations = [...locations, location.trim()];
+      setLocations(newLocations);
+      setLocation('');
+      await saveLocations(newLocations); 
     }
   };
 

@@ -28,23 +28,35 @@ const EventReview = () => {
     useEffect(() => {
         if (location.state?.eventData) {
             setEventData(location.state.eventData);
+        } else {
+            // Try to load from localStorage if no state
+            const savedDraft = localStorage.getItem('eventDraft');
+            if (savedDraft) {
+                setEventData(JSON.parse(savedDraft));
+            } else {
+                // If no data found, redirect back to create event
+                navigate('/create-event');
+            }
         }
-    }, [location.state]);
+    }, [location.state, navigate]);
 
     const handleBack = () => {
+        // Save current state before going back
+        localStorage.setItem('eventDraft', JSON.stringify(eventData));
         navigate('/create-event');
     };
 
     const handleSaveDraft = () => {
-        // Save all form data including the image preview
-        const draftData = {
-            ...eventData,
-            previewImage: eventData.previewImage // Include the preview image
-        };
         try {
+            // Save form data without the image
+            const draftData = {
+                ...eventData,
+                previewImage: null
+            };
             localStorage.setItem('eventDraft', JSON.stringify(draftData));
             alert('Draft saved successfully!');
         } catch (error) {
+            console.error('Error saving draft:', error);
             alert('Failed to save draft. Please try again.');
         }
     };
@@ -53,7 +65,7 @@ const EventReview = () => {
         try {
             // Prepare event data
             const newEvent = {
-                id: Date.now().toString(), // Generate a unique ID
+                id: `event-${Date.now()}`, // Generate a unique ID
                 title: eventData.title,
                 description: eventData.description,
                 date: eventData.date,
@@ -70,30 +82,50 @@ const EventReview = () => {
                     { id: 'vip', name: 'VIP Experience', price: parseFloat(eventData.price) * 2 },
                     { id: 'backstage', name: 'Backstage Pass', price: parseFloat(eventData.price) * 3 }
                 ],
-                status: 'upcoming'
+                status: 'upcoming',
+                createdAt: new Date().toISOString()
             };
-
-            console.log('Preparing to save new event:', newEvent);
 
             // Save to localStorage
             const existingEvents = JSON.parse(localStorage.getItem('events') || '[]');
-            console.log('Existing events before save:', existingEvents);
             
             // Add new event
             existingEvents.push(newEvent);
             
             // Save back to localStorage
             localStorage.setItem('events', JSON.stringify(existingEvents));
-            console.log('Events after save:', existingEvents);
+
+            // Clear the draft
+            localStorage.removeItem('eventDraft');
 
             // Navigate to event details page
-            console.log('Navigating to event:', newEvent.id);
-            navigate(`/event/${newEvent.id}`, { state: { event: newEvent } });
+            navigate(`/event/${newEvent.id}`);
         } catch (error) {
             console.error('Error publishing event:', error);
             setError('Failed to publish event. Please try again.');
         }
     };
+
+    // Handle browser back button
+    useEffect(() => {
+        const handleBeforeUnload = (e) => {
+            try {
+                // Save current state without image
+                const dataToSave = {
+                    ...eventData,
+                    previewImage: null
+                };
+                localStorage.setItem('eventDraft', JSON.stringify(dataToSave));
+            } catch (error) {
+                console.error('Error saving draft:', error);
+            }
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+    }, [eventData]);
 
     const formatDate = (dateString) => {
         if (!dateString) return '';

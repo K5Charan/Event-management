@@ -6,8 +6,13 @@ const LandingPage = () => {
     return (
         <div className="landing-page">
             <div className="landing-navbar">
-                <Link to="/login">Login</Link>
-                <Link to="/signup">Signup</Link>
+                <div className="admin-nav">
+                    <Link to="/adminlogin" className="admin-link">Admin Login</Link>
+                </div>
+                <div className="user-nav">
+                    <Link to="/login">Login</Link>
+                    <Link to="/signup">Signup</Link>
+                </div>
             </div>
             <div className="landing-content">
                 <h1>Welcome to BASC Events</h1>

@@ -97,8 +97,15 @@
     position: relative;
     height: 200px;
     width: 100%;
-    background-size: cover;
-    background-position: center;
+    overflow: hidden;
+    background-color: #f0f0f0;
+}
+
+.upcoming-events-container .event-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
 }
 
 .upcoming-events-container .event-tag {
@@ -127,7 +134,7 @@
     transition: none;
 }
 
-.upcoming-events-container .event-details {
+.upcoming-events-container .event-content {
     padding: 1.5rem;
     background: white;
     flex: 1;
@@ -135,22 +142,24 @@
     flex-direction: column;
 }
 
-.upcoming-events-container .event-details h4 {
+.upcoming-events-container .event-content h3 {
     margin: 0 0 1rem 0;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     font-weight: 600;
     color: #333;
 }
 
-.upcoming-events-container .event-info {
+.upcoming-events-container .event-details {
     display: flex;
     flex-direction: column;
     gap: 0.8rem;
     margin-top: auto;
 }
 
-.upcoming-events-container .event-datetime,
-.upcoming-events-container .event-location {
+.upcoming-events-container .event-date,
+.upcoming-events-container .event-location,
+.upcoming-events-container .event-category,
+.upcoming-events-container .event-price {
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -158,10 +167,9 @@
     font-size: 0.9rem;
 }
 
-.upcoming-events-container .calendar-icon,
-.upcoming-events-container .location-icon {
-    font-size: 1.1rem;
-    color: #666;
+.upcoming-events-container .event-price {
+    color: #2ecc71;
+    font-weight: 600;
 }
 
 /* Background images for different event types */
@@ -187,6 +195,10 @@
 
 .upcoming-events-container .art-exhibition {
     background: url('../Images/art.jpg') center/cover no-repeat;
+}
+
+.upcoming-events-container .event-card:hover .event-image img {
+    transform: scale(1.05);
 }
 
 /* Responsive styles */

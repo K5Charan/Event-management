@@ -199,10 +199,22 @@ const Search = () => {
         });
     };
 
+    const handlePriceChange = (price) => {
+        setSelectedPrice(prev => {
+            if (prev.includes(price)) {
+                return prev.filter(p => p !== price);
+            }
+            return [...prev, price];
+        });
+    };
+
     const filteredEvents = Object.entries(eventData).filter(([_, event]) => {
         const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(event.category);
-        return matchesSearch && matchesCategory;
+        const matchesPrice = selectedPrice.length === 0 || 
+            (selectedPrice.includes('Free') && event.price === 0) ||
+            (selectedPrice.includes('Paid') && event.price > 0);
+        return matchesSearch && matchesCategory && matchesPrice;
     });
 
     const recommendedEvents = Object.entries(eventData)
@@ -271,11 +283,7 @@ const Search = () => {
                                 <input 
                                     type="checkbox"
                                     checked={selectedPrice.includes('Free')}
-                                    onChange={() => setSelectedPrice(prev => 
-                                        prev.includes('Free') 
-                                            ? prev.filter(p => p !== 'Free')
-                                            : [...prev, 'Free']
-                                    )}
+                                    onChange={() => handlePriceChange('Free')}
                                 /> 
                                 Free
                             </label>
@@ -283,11 +291,7 @@ const Search = () => {
                                 <input 
                                     type="checkbox"
                                     checked={selectedPrice.includes('Paid')}
-                                    onChange={() => setSelectedPrice(prev => 
-                                        prev.includes('Paid') 
-                                            ? prev.filter(p => p !== 'Paid')
-                                            : [...prev, 'Paid']
-                                    )}
+                                    onChange={() => handlePriceChange('Paid')}
                                 /> 
                                 Paid
                             </label>
@@ -304,7 +308,6 @@ const Search = () => {
                             >
                                 Clear Filter
                             </button>
-                            <button className="apply-filter">Apply</button>
                         </div>
                     </div>
 

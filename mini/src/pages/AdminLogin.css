@@ -1,0 +1,89 @@
+/* AdminLogin.css */
+.admin-login-container {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: url('../Images/Login.jpg') no-repeat center center;
+  background-size: cover;
+}
+
+.admin-login-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.admin-login-form {
+  position: relative;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 2.5rem;
+  border-radius: 15px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  backdrop-filter: blur(10px);
+}
+
+.admin-login-form h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #333;
+  font-size: 2rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.form-group label {
+  font-size: 1rem;
+  color: #555;
+}
+
+.form-group input {
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  outline: none;
+  transition: border 0.2s;
+}
+
+.form-group input:focus {
+  border-color: #007bff;
+}
+
+.admin-login-btn {
+  background: #007bff;
+  color: #fff;
+  border: none;
+  padding: 0.7rem 0;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.admin-login-btn:hover {
+  background: #0056b3;
+}
+
+.admin-login-error {
+  color: #d8000c;
+  background: #ffd2d2;
+  border: 1px solid #d8000c;
+  border-radius: 6px;
+  padding: 0.5rem 0.8rem;
+  margin-bottom: 0.5rem;
+  text-align: center;
+  font-size: 0.98rem;
+}

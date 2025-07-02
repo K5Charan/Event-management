@@ -1,14 +1,14 @@
-import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import './CreateEvent.css';
-
-const API_URL = 'http://localhost:5001/api';
+import API_URL from '../config/api';
 
 const CreateEvent = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const fileInputRef = useRef(null);
     const [formData, setFormData] = useState({
         title: '',
@@ -20,11 +20,23 @@ const CreateEvent = () => {
         price: '',
         totalTickets: '',
         category: '',
-        image: null
+        images: []
     });
-    const [previewImage, setPreviewImage] = useState(null);
+    const [previewImages, setPreviewImages] = useState([]);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+
+    // Load draft data if exists
+    useEffect(() => {
+        const savedDraft = localStorage.getItem('eventDraft');
+        if (savedDraft) {
+            const draftData = JSON.parse(savedDraft);
+            setFormData(draftData);
+            if (draftData.images && draftData.images.length > 0) {
+                setPreviewImages(draftData.images);
+            }
+        }
+    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -34,31 +46,62 @@ const CreateEvent = () => {
         }));
     };
 
-    const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setFormData(prev => ({
-                ...prev,
-                image: file
-            }));
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPreviewImage(reader.result);
-            };
-            reader.readAsDataURL(file);
+    const handleImageChange = async (e) => {
+        const files = Array.from(e.target.files);
+        if (files.length > 0) {
+            setLoading(true);
+            try {
+                const formData = new FormData();
+                files.forEach(file => {
+                    formData.append('images', file);
+                });
+
+                // Get the token from localStorage
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    throw new Error('Please log in to upload images');
+                }
+
+                const response = await axios.post(`${API_URL}/upload`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const newImages = response.data.urls;
+                setPreviewImages(prev => [...prev, ...newImages]);
+                setFormData(prev => ({
+                    ...prev,
+                    images: [...prev.images, ...newImages]
+                }));
+            } catch (err) {
+                setError(err.message || 'Failed to upload images. Please try again.');
+                console.error('Image upload error:', err);
+            } finally {
+                setLoading(false);
+            }
         }
     };
 
+    const removeImage = (index) => {
+        setPreviewImages(prev => prev.filter((_, i) => i !== index));
+        setFormData(prev => ({
+            ...prev,
+            images: prev.images.filter((_, i) => i !== index)
+        }));
+    };
+
     const handleSaveDraft = () => {
-        // Save form data to localStorage without the image preview
-        const draftData = {
-            ...formData,
-            image: null // Don't save the file object
-        };
         try {
+            const draftData = {
+                ...formData,
+                images: previewImages
+            };
             localStorage.setItem('eventDraft', JSON.stringify(draftData));
             alert('Draft saved successfully!');
         } catch (error) {
+            console.error('Error saving draft:', error);
             alert('Failed to save draft. Please try again.');
         }
     };
@@ -76,7 +119,7 @@ const CreateEvent = () => {
         if (!formData.price) errors.push('Price is required');
         if (!formData.totalTickets) errors.push('Total tickets is required');
         if (!formData.category) errors.push('Category is required');
-        if (!formData.image) errors.push('Event image is required');
+        if (previewImages.length === 0) errors.push('At least one event image is required');
 
         // Validate date and time
         const eventDate = new Date(formData.date);
@@ -105,14 +148,15 @@ const CreateEvent = () => {
                 return;
             }
 
+            // Create the event object
+            const eventData = {
+                ...formData,
+                images: previewImages
+            };
+
             // Navigate to review page with form data
             navigate('/create-event/review', { 
-                state: { 
-                    eventData: {
-                        ...formData,
-                        previewImage: previewImage
-                    }
-                } 
+                state: { eventData }
             });
         } catch (err) {
             setError(err.message || 'Failed to proceed to review');
@@ -120,6 +164,27 @@ const CreateEvent = () => {
             setLoading(false);
         }
     };
+
+    // Handle browser back button
+    useEffect(() => {
+        const handleBeforeUnload = (e) => {
+            try {
+                // Save current form state without image
+                const dataToSave = {
+                    ...formData,
+                    images: previewImages
+                };
+                localStorage.setItem('eventDraft', JSON.stringify(dataToSave));
+            } catch (error) {
+                console.error('Error saving draft:', error);
+            }
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+    }, [formData, previewImages]);
 
     return (
         <>
@@ -131,29 +196,43 @@ const CreateEvent = () => {
                     
                     <form onSubmit={handleSubmit} className="create-event-form">
                         <div className="form-group">
-                            <label>Event Image</label>
+                            <label>Event Images</label>
                             <div className="upload-container">
                                 <input
                                     type="file"
                                     ref={fileInputRef}
                                     onChange={handleImageChange}
                                     accept="image/*"
+                                    multiple
                                     className="hidden"
                                 />
                                 <div 
                                     className="upload-area"
                                     onClick={() => fileInputRef.current.click()}
                                 >
-                                    {previewImage ? (
-                                        <img 
-                                            src={previewImage} 
-                                            alt="Preview" 
-                                            className="preview-image"
-                                        />
+                                    {previewImages.length > 0 ? (
+                                        <div className="image-grid">
+                                            {previewImages.map((image, index) => (
+                                                <div key={index} className="image-preview-container">
+                                                    <img 
+                                                        src={image} 
+                                                        alt={`Preview ${index + 1}`} 
+                                                        className="preview-image"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        className="remove-image"
+                                                        onClick={() => removeImage(index)}
+                                                    >
+                                                        ×
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
                                     ) : (
                                         <div className="upload-placeholder">
                                             <div className="upload-icon">📷</div>
-                                            <div>Click to upload image</div>
+                                            <div>Click to upload images</div>
                                         </div>
                                     )}
                                 </div>
@@ -276,10 +355,10 @@ const CreateEvent = () => {
                                 <option value="">Select a category</option>
                                 <option value="Music">Music</option>
                                 <option value="Sports">Sports</option>
-                                <option value="Dance">Dance</option>
-                                <option value="Party">Party</option>
+                                <option value="Arts">Arts</option>
+                                <option value="Food">Food</option>
                                 <option value="Business">Business</option>
-                                <option value="Comedy">Comedy</option>
+                                <option value="Technology">Technology</option>
                             </select>
                         </div>
 

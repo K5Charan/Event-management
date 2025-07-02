@@ -5,6 +5,7 @@ const Event = require('../models/Event');
 const User = require('../models/User');
 const { body, validationResult } = require('express-validator');
 const auth = require('../middleware/auth');
+const admin = require('../middleware/admin');
 
 // Get user's tickets
 router.get('/my-tickets', auth, async (req, res) => {
@@ -162,6 +163,76 @@ router.put('/:id/check-in', auth, async (req, res) => {
     res.json(ticket);
   } catch (error) {
     console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Get all tickets (admin only)
+router.get('/', [auth, admin], async (req, res) => {
+  try {
+    const tickets = await Ticket.find()
+      .populate('event', 'title date location')
+      .populate('user', 'username email')
+      .sort({ purchaseDate: -1 });
+    res.json(tickets);
+  } catch (error) {
+    console.error('Error fetching tickets:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Get ticket by ID (admin only)
+router.get('/:id', [auth, admin], async (req, res) => {
+  try {
+    const ticket = await Ticket.findById(req.params.id)
+      .populate('event', 'title date location')
+      .populate('user', 'username email');
+    
+    if (!ticket) {
+      return res.status(404).json({ message: 'Ticket not found' });
+    }
+    res.json(ticket);
+  } catch (error) {
+    console.error('Error fetching ticket:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Update ticket status (admin only)
+router.patch('/:id/status', [auth, admin], async (req, res) => {
+  try {
+    const { status } = req.body;
+    if (!['pending', 'confirmed', 'cancelled'].includes(status)) {
+      return res.status(400).json({ message: 'Invalid status' });
+    }
+
+    const ticket = await Ticket.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    ).populate('event', 'title date location')
+     .populate('user', 'username email');
+
+    if (!ticket) {
+      return res.status(404).json({ message: 'Ticket not found' });
+    }
+
+    res.json(ticket);
+  } catch (error) {
+    console.error('Error updating ticket status:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Get tickets by user ID (admin only)
+router.get('/user/:userId', [auth, admin], async (req, res) => {
+  try {
+    const tickets = await Ticket.find({ user: req.params.userId })
+      .populate('event', 'title date location')
+      .sort({ purchaseDate: -1 });
+    res.json(tickets);
+  } catch (error) {
+    console.error('Error fetching user tickets:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });

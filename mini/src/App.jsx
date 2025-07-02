@@ -20,6 +20,10 @@ import MyTickets from './pages/MyTickets';
 import UpcomingEvents from './pages/UpcomingEvents';
 import Welcome from './pages/Welcome';
 import Profile from './pages/Profile';
+import AdminRoute from './components/AdminRoutes';
+import PrivateRoute from './components/PrivateRoute';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminLogin from './pages/AdminLogin';
 
 const App = () => {
   return (
@@ -30,20 +34,28 @@ const App = () => {
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
-            <Route path="/welcome" element={<Welcome />} />
-            <Route path="/interests" element={<InterestSelection />} />
-            <Route path="/location" element={<Location />} />
-            <Route path="/events" element={<Events />} />
-            <Route path="/upcoming-events" element={<UpcomingEvents />} />
-            <Route path="/search" element={<Search />} />
-            <Route path="/create-event" element={<CreateEvent />} />
-            <Route path="/create-event/review" element={<EventReview />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/event/:id" element={<EventDetails />} />
-            <Route path="/event/:id/purchase" element={<PurchaseTicket />} />
-            <Route path="/payment-success" element={<PaymentSuccess />} />
-            <Route path="/my-tickets" element={<MyTickets />} />
-            <Route path="/profile" element={<Profile />} />
+            <Route path="/adminlogin" element={<AdminLogin />} />
+            
+            <Route path="/admindashboard" element={
+           <AdminRoute>
+             <AdminDashboard />
+             </AdminRoute>
+           } />
+            
+            <Route path="/welcome" element={<PrivateRoute><Welcome /></PrivateRoute>} />
+            <Route path="/interests" element={<PrivateRoute><InterestSelection /></PrivateRoute>} />
+            <Route path="/location" element={<PrivateRoute><Location /></PrivateRoute>} />
+            <Route path="/events" element={<PrivateRoute><Events /></PrivateRoute>} />
+            <Route path="/upcoming-events" element={<PrivateRoute><UpcomingEvents /></PrivateRoute>} />
+            <Route path="/search" element={<PrivateRoute><Search /></PrivateRoute>} />
+            <Route path="/create-event" element={<PrivateRoute><CreateEvent /></PrivateRoute>} />
+            <Route path="/create-event/review" element={<PrivateRoute><EventReview /></PrivateRoute>} />
+            <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+            <Route path="/event/:id" element={<PrivateRoute><EventDetails /></PrivateRoute>} />
+            <Route path="/event/:id/purchase" element={<PrivateRoute><PurchaseTicket /></PrivateRoute>} />
+            <Route path="/payment-success" element={<PrivateRoute><PaymentSuccess /></PrivateRoute>} />
+            <Route path="/my-tickets" element={<PrivateRoute><MyTickets /></PrivateRoute>} />
+            <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
           </Routes>
         </main>
       </div>
